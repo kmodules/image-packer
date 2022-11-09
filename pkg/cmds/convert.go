@@ -40,7 +40,7 @@ func NewCmdListImages() *cobra.Command {
 		DisableFlagsInUseLine: true,
 		DisableAutoGenTag:     true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			images, err := ListImages(args)
+			images, err := listImages(args)
 			if err != nil {
 				return err
 			}
@@ -52,22 +52,36 @@ func NewCmdListImages() *cobra.Command {
 	return cmd
 }
 
-func ListImages(args []string) ([]string, error) {
-	if len(args) == 0 {
-		return nil, errors.New("missing input")
-	} else if len(args) > 1 {
-		return nil, errors.New("too many inputs")
+func listImages(args []string) ([]string, error) {
+	dir, manifest, err := readManifest(args)
+	if err != nil {
+		return nil, err
 	}
+	return ListImages(dir, manifest)
+}
 
-	imgList := sets.NewString()
+func readManifest(args []string) (string, bool, error) {
+	if len(args) == 0 {
+		return "", false, errors.New("missing input")
+	} else if len(args) > 1 {
+		return "", false, errors.New("too many inputs")
+	}
 	dir := args[0]
 	if dir == "-" {
 		// ref: https://gist.github.com/AlexMocioi/10008287
 		data, err := io.ReadAll(os.Stdin)
 		if err != nil {
-			return nil, err
+			return "", false, err
 		}
-		err = parser.ProcessResources(data, processYAML(imgList))
+		return string(data), true, nil
+	}
+	return dir, false, nil
+}
+
+func ListImages(dir string, manifest bool) ([]string, error) {
+	imgList := sets.NewString()
+	if manifest {
+		err := parser.ProcessResources([]byte(dir), processYAML(imgList))
 		if err != nil {
 			return nil, err
 		}

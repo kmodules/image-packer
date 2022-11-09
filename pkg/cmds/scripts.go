@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/spf13/cobra"
@@ -36,7 +37,7 @@ func NewCmdGenerateScripts() *cobra.Command {
 		DisableFlagsInUseLine: true,
 		DisableAutoGenTag:     true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return GenerateScripts(args, nondistro, insecure)
+			return generateScripts(args, nondistro, insecure)
 		},
 	}
 	cmd.Flags().BoolVar(&nondistro, "allow-nondistributable-artifacts", nondistro, "Allow pushing non-distributable (foreign) layers")
@@ -45,8 +46,20 @@ func NewCmdGenerateScripts() *cobra.Command {
 	return cmd
 }
 
-func GenerateScripts(args []string, nondistro, insecure bool) error {
-	images, err := ListImages(args)
+func generateScripts(args []string, nondistro, insecure bool) error {
+	dir, manifest, err := readManifest(args)
+	if err != nil {
+		return err
+	}
+	outdir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	return GenerateScripts(dir, manifest, outdir, nondistro, insecure)
+}
+
+func GenerateScripts(dir string, manifest bool, outdir string, nondistro, insecure bool) error {
+	images, err := ListImages(dir, manifest)
 	if err != nil {
 		return err
 	}
@@ -87,7 +100,7 @@ mkdir -p images
 	buf.WriteRune('\n')
 	buf.WriteString(`tar -czvf images.tar.gz images
 `)
-	err = os.WriteFile("export-images.sh", buf.Bytes(), 0o644)
+	err = os.WriteFile(filepath.Join(outdir, "export-images.sh"), buf.Bytes(), 0o644)
 	if err != nil {
 		return err
 	}
@@ -128,7 +141,7 @@ tar -zxvf $TARBALL
 
 		buf.WriteRune('\n')
 	}
-	err = os.WriteFile("import-images.sh", buf.Bytes(), 0o644)
+	err = os.WriteFile(filepath.Join(outdir, "import-images.sh"), buf.Bytes(), 0o644)
 	if err != nil {
 		return err
 	}
