@@ -34,7 +34,9 @@ func NewRootCmd() *cobra.Command {
 	// a.k.a. change all "_" to "-". e.g. glog package
 	flags.SetNormalizeFunc(cliflag.WordSepNormalizeFunc)
 
+	rootCmd.AddCommand(NewCmdParseImage())
 	rootCmd.AddCommand(NewCmdListImages())
+	rootCmd.AddCommand(NewCmdGenerateScripts())
 	rootCmd.AddCommand(NewCmdCompletion())
 	rootCmd.AddCommand(v.NewCmdVersion())
 

@@ -34,26 +34,29 @@ import (
 )
 
 func NewCmdListImages() *cobra.Command {
-	var dir string
 	cmd := &cobra.Command{
 		Use:                   "list",
 		Short:                 "List all Docker images in a dir/file or stdin",
 		DisableFlagsInUseLine: true,
 		DisableAutoGenTag:     true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return ListImages(args)
+			images, err := ListImages(args)
+			if err != nil {
+				return err
+			}
+			fmt.Println(strings.Join(images, "\n"))
+			return nil
 		},
 	}
-	cmd.Flags().StringVar(&dir, "dir", dir, "Path to directory where yaml files are written")
 
 	return cmd
 }
 
-func ListImages(args []string) error {
+func ListImages(args []string) ([]string, error) {
 	if len(args) == 0 {
-		return errors.New("missing input")
+		return nil, errors.New("missing input")
 	} else if len(args) > 1 {
-		return errors.New("too many inputs")
+		return nil, errors.New("too many inputs")
 	}
 
 	imgList := sets.NewString()
@@ -62,21 +65,19 @@ func ListImages(args []string) error {
 		// ref: https://gist.github.com/AlexMocioi/10008287
 		data, err := io.ReadAll(os.Stdin)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		err = parser.ProcessResources(data, processYAML(imgList))
 		if err != nil {
-			return err
+			return nil, err
 		}
 	} else {
 		err := parser.ProcessPath(dir, processYAML(imgList))
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
-
-	fmt.Println(strings.Join(imgList.List(), "\n"))
-	return nil
+	return imgList.List(), nil
 }
 
 func processYAML(imgList sets.String) func(ri parser.ResourceInfo) error {

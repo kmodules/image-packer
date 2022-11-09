@@ -1,0 +1,121 @@
+package cmds
+
+import (
+	"bytes"
+	"os"
+	"path"
+
+	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/spf13/cobra"
+)
+
+func NewCmdGenerateScripts() *cobra.Command {
+	var (
+		nondistro bool
+		insecure  bool
+	)
+	cmd := &cobra.Command{
+		Use:                   "generate-scripts",
+		Short:                 "Generate export/import scripts",
+		DisableFlagsInUseLine: true,
+		DisableAutoGenTag:     true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return GenerateScripts(args, nondistro, insecure)
+		},
+	}
+	cmd.Flags().BoolVar(&nondistro, "allow-nondistributable-artifacts", nondistro, "Allow pushing non-distributable (foreign) layers")
+	cmd.Flags().BoolVar(&insecure, "insecure", insecure, "Allow image references to be fetched without TLS")
+
+	return cmd
+}
+
+func GenerateScripts(args []string, nondistro, insecure bool) error {
+	images, err := ListImages(args)
+	if err != nil {
+		return err
+	}
+
+	var buf bytes.Buffer
+	buf.WriteString(`#!/bin/bash
+
+set -x
+
+mkdir -p images
+
+`)
+	for _, img := range images {
+		// crane pull appscode/cluster-ui:0.4.16 images/cluster-ui.tar
+
+		buf.WriteString("crane pull")
+		if nondistro {
+			buf.WriteString(" --allow-nondistributable-artifacts")
+		}
+		if insecure {
+			buf.WriteString(" --insecure")
+		}
+		buf.WriteString(" ")
+		buf.WriteString(img)
+
+		ref, err := name.ParseReference(img)
+		if err != nil {
+			return err
+		}
+		_, bin := path.Split(ref.Context().RepositoryStr())
+
+		buf.WriteString(" ")
+		buf.WriteString("images/" + bin + "-" + ref.Identifier() + ".tar")
+
+		buf.WriteRune('\n')
+	}
+
+	buf.WriteRune('\n')
+	buf.WriteString(`tar -czvf images.tar.gz images
+`)
+	err = os.WriteFile("export-images.sh", buf.Bytes(), 0o644)
+	if err != nil {
+		return err
+	}
+
+	buf.Reset()
+	buf.WriteString(`#!/bin/bash
+
+set -x
+
+TARBALL=${1:-}
+REGISTRY=${2:-}
+
+tar -zxvf $TARBALL
+
+`)
+	for _, img := range images {
+		// crane push images/cluster-ui.tar $REGISTRY/cluster-ui:0.4.16
+
+		buf.WriteString("crane push")
+		if nondistro {
+			buf.WriteString(" --allow-nondistributable-artifacts")
+		}
+		if insecure {
+			buf.WriteString(" --insecure")
+		}
+
+		ref, err := name.ParseReference(img)
+		if err != nil {
+			return err
+		}
+		_, bin := path.Split(ref.Context().RepositoryStr())
+
+		buf.WriteString(" ")
+		buf.WriteString("images/" + bin + "-" + ref.Identifier() + ".tar")
+
+		buf.WriteString(" ")
+		buf.WriteString("$REGISTRY/" + bin + ":" + ref.Identifier())
+
+		buf.WriteRune('\n')
+	}
+	err = os.WriteFile("import-images.sh", buf.Bytes(), 0o644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
