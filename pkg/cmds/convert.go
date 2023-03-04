@@ -215,7 +215,6 @@ func processYAML(imgList sets.String) func(ri parser.ResourceInfo) error {
 
 			collect(v.Spec.PgBouncer.Image, imgList)
 			collect(v.Spec.Exporter.Image, imgList)
-			collect(v.Spec.InitContainer.Image, imgList)
 		case api.SchemeGroupVersion.WithKind(api.ResourceKindProxySQLVersion):
 			var v api.ProxySQLVersion
 			err := runtime.DefaultUnstructuredConverter.FromUnstructured(ri.Object.UnstructuredContent(), &v)
