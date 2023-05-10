@@ -3,7 +3,7 @@ module kubeops.dev/img-tools
 go 1.18
 
 require (
-	github.com/google/go-containerregistry v0.12.1
+	github.com/google/go-containerregistry v0.13.0
 	github.com/spf13/cobra v1.6.0
 	gomodules.xyz/logs v0.0.6
 	gomodules.xyz/sets v0.2.1
@@ -12,8 +12,8 @@ require (
 	k8s.io/apimachinery v0.25.3
 	k8s.io/client-go v0.25.3
 	k8s.io/component-base v0.25.3
-	kmodules.xyz/client-go v0.25.16
-	kubedb.dev/apimachinery v0.32.0
+	kmodules.xyz/client-go v0.25.22
+	kubedb.dev/apimachinery v0.33.1
 )
 
 require (
@@ -45,7 +45,6 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
@@ -58,7 +57,7 @@ require (
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/oauth2 v0.1.0 // indirect
+	golang.org/x/oauth2 v0.5.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/term v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
