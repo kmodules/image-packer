@@ -54,7 +54,7 @@ func NewCmdListImages() *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&rootDir, "root-dir", "", "Root directory")
-	cmd.Flags().StringVar(&rootDir, "output-dir", "", "Output directory")
+	cmd.Flags().StringVar(&outDir, "output-dir", "", "Output directory")
 	_ = cobra.MarkFlagRequired(cmd.Flags(), "root-dir")
 	_ = cobra.MarkFlagRequired(cmd.Flags(), "output-dir")
 

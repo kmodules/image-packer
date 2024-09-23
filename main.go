@@ -26,11 +26,15 @@ import (
 )
 
 func main() {
+	if err := realMain(); err != nil {
+		os.Exit(1)
+	}
+}
+
+func realMain() error {
 	rootCmd := cmds.NewRootCmd()
 	logs.Init(rootCmd, false)
 	defer logs.FlushLogs()
 
-	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
-	}
+	return rootCmd.Execute()
 }

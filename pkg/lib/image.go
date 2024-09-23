@@ -18,6 +18,7 @@ package lib
 
 import (
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -43,7 +44,12 @@ func ListImages(rootDir string) ([]string, error) {
 			continue
 		}
 
-		out, err := sh.Command("helm", "template", entry.Name()).Output()
+		err := sh.SetDir(filepath.Join(rootDir, entry.Name())).Command("helm", "dependency", "build").Run()
+		if err != nil {
+			panic(err)
+		}
+
+		out, err := sh.SetDir(rootDir).Command("helm", "template", entry.Name()).Output()
 		if err != nil {
 			panic(err)
 		}
