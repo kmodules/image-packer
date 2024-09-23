@@ -41,12 +41,12 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            bin/img-tools-darwin-amd64.tar.gz
-            bin/img-tools-darwin-arm64.tar.gz
-            bin/img-tools-linux-amd64.tar.gz
-            bin/img-tools-linux-arm.tar.gz
-            bin/img-tools-linux-arm64.tar.gz
-            bin/img-tools-windows-amd64.zip
-            bin/img-tools-checksums.txt
+            bin/image-packer-darwin-amd64.tar.gz
+            bin/image-packer-darwin-arm64.tar.gz
+            bin/image-packer-linux-amd64.tar.gz
+            bin/image-packer-linux-arm.tar.gz
+            bin/image-packer-linux-arm64.tar.gz
+            bin/image-packer-windows-amd64.zip
+            bin/image-packer-checksums.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

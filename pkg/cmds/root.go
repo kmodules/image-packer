@@ -24,7 +24,7 @@ import (
 
 func NewRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:               "img-tools [command]",
+		Use:               "image-packer [command]",
 		Short:             `OCI Image tools by AppsCode`,
 		DisableAutoGenTag: true,
 	}

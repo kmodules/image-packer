@@ -14,9 +14,9 @@
 
 SHELL=/bin/bash -o pipefail
 
-GO_PKG   := kubeops.dev
+GO_PKG   := kmodules.xyz
 REPO     := $(notdir $(shell pwd))
-BIN      := img-tools
+BIN      := image-packer
 COMPRESS ?= no
 
 # This version-strategy uses git tags to set the version string

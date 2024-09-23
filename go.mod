@@ -1,4 +1,4 @@
-module kubeops.dev/img-tools
+module kmodules.xyz/image-packer
 
 go 1.22.0
 

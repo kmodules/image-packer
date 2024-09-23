@@ -23,13 +23,14 @@ import (
 	"os"
 	"strings"
 
+	"kmodules.xyz/client-go/tools/parser"
+
 	"github.com/spf13/cobra"
 	"gomodules.xyz/sets"
 	apps "k8s.io/api/apps/v1"
 	batch "k8s.io/api/batch/v1"
 	core "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"kmodules.xyz/client-go/tools/parser"
 	api "kubedb.dev/apimachinery/apis/catalog/v1alpha1"
 )
 

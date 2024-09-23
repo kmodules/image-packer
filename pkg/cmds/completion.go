@@ -30,13 +30,13 @@ func NewCmdCompletion() *cobra.Command {
 
 Bash:
 
-$ source <(img-tools completion bash)
+$ source <(image-packer completion bash)
 
 # To load completions for each session, execute once:
 Linux:
-  $ img-tools completion bash > /etc/bash_completion.d/img-tools
+  $ image-packer completion bash > /etc/bash_completion.d/image-packer
 MacOS:
-  $ img-tools completion bash > /usr/local/etc/bash_completion.d/img-tools
+  $ image-packer completion bash > /usr/local/etc/bash_completion.d/image-packer
 
 Zsh:
 
@@ -46,16 +46,16 @@ Zsh:
 $ echo "autoload -U compinit; compinit" >> ~/.zshrc
 
 # To load completions for each session, execute once:
-$ img-tools completion zsh > "${fpath[1]}/_img-tools"
+$ image-packer completion zsh > "${fpath[1]}/_image-packer"
 
 # You will need to start a new shell for this setup to take effect.
 
 Fish:
 
-$ img-tools completion fish | source
+$ image-packer completion fish | source
 
 # To load completions for each session, execute once:
-$ img-tools completion fish > ~/.config/fish/completions/img-tools.fish
+$ image-packer completion fish > ~/.config/fish/completions/image-packer.fish
 `,
 		DisableFlagsInUseLine: true,
 		ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
