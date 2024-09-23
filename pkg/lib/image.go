@@ -51,7 +51,7 @@ func ListImages(rootDir string) ([]string, error) {
 		}
 
 		args := []any{"template", entry.Name()}
-		if files, err := filepath.Glob(filepath.Join(rootDir, entry.Name(), "*.values.yaml")); err == nil && len(files) > 0 {
+		if files, err := filepath.Glob(filepath.Join(rootDir, entry.Name(), "*.sample.yaml")); err == nil && len(files) > 0 {
 			for _, file := range files {
 				args = append(args, "--values="+entry.Name()+"/"+filepath.Base(file))
 			}
