@@ -18,14 +18,11 @@ package cmds
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"kmodules.xyz/client-go/tools/parser"
 
-	"github.com/spf13/cobra"
 	"gomodules.xyz/sets"
 	apps "k8s.io/api/apps/v1"
 	batch "k8s.io/api/batch/v1"
@@ -33,25 +30,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	api "kubedb.dev/apimachinery/apis/catalog/v1alpha1"
 )
-
-func NewCmdListImages() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:                   "list",
-		Short:                 "List all Docker images in a dir/file or stdin",
-		DisableFlagsInUseLine: true,
-		DisableAutoGenTag:     true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			images, err := listImages(args)
-			if err != nil {
-				return err
-			}
-			fmt.Println(strings.Join(images, "\n"))
-			return nil
-		},
-	}
-
-	return cmd
-}
 
 func listImages(args []string) ([]string, error) {
 	dir, manifest, err := readManifest(args)

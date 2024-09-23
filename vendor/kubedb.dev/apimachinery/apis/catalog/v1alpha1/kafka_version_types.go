@@ -37,7 +37,7 @@ const (
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // +kubebuilder:object:root=true
-// +kubebuilder:resource:path=kafkaversions,singular=kafkaversion,scope=Cluster,shortName=kfversion,categories={datastore,kubedb,appscode}
+// +kubebuilder:resource:path=kafkaversions,singular=kafkaversion,scope=Cluster,shortName=kfversion,categories={catalog,kubedb,appscode}
 // +kubebuilder:printcolumn:name="Version",type="string",JSONPath=".spec.version"
 // +kubebuilder:printcolumn:name="DB_IMAGE",type="string",JSONPath=".spec.db.image"
 // +kubebuilder:printcolumn:name="Deprecated",type="boolean",JSONPath=".spec.deprecated"
@@ -54,9 +54,13 @@ type KafkaVersionSpec struct {
 	Version string `json:"version"`
 	// Database Image
 	DB KafkaVersionDatabase `json:"db"`
+	// Connect Image
+	ConnectCluster ConnectClusterVersion `json:"connectCluster"`
 	// Deprecated versions usable but regarded as obsolete and best avoided, typically due to having been superseded.
 	// +optional
 	Deprecated bool `json:"deprecated,omitempty"`
+	// Database Image
+	CruiseControl CruiseControlVersionDatabase `json:"cruiseControl"`
 	// PSP names
 	// +optional
 	PodSecurityPolicies KafkaVersionPodSecurityPolicy `json:"podSecurityPolicies"`
@@ -65,10 +69,25 @@ type KafkaVersionSpec struct {
 	Stash appcat.StashAddonSpec `json:"stash,omitempty"`
 	// update constraints
 	UpdateConstraints UpdateConstraints `json:"updateConstraints,omitempty"`
+	// SecurityContext is for the additional config for the DB container
+	// +optional
+	SecurityContext SecurityContext `json:"securityContext"`
+	// +optional
+	UI []ChartInfo `json:"ui,omitempty"`
 }
 
 // KafkaVersionDatabase is the Kafka Database image
 type KafkaVersionDatabase struct {
+	Image string `json:"image"`
+}
+
+// ConnectClusterVersion is the Kafka Connect Cluster image
+type ConnectClusterVersion struct {
+	Image string `json:"image"`
+}
+
+// CruiseControlVersionDatabase is the Kafka Database image
+type CruiseControlVersionDatabase struct {
 	Image string `json:"image"`
 }
 
