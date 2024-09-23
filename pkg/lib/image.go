@@ -26,6 +26,7 @@ import (
 
 	shell "gomodules.xyz/go-sh"
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/klog/v2"
 )
 
 func ListImages(rootDir string) ([]string, error) {
@@ -49,18 +50,17 @@ func ListImages(rootDir string) ([]string, error) {
 			panic(err)
 		}
 
-		out, err := sh.SetDir(rootDir).Command("helm", "template", entry.Name()).Output()
-		if err != nil {
-			panic(err)
-		}
+		if out, err := sh.SetDir(rootDir).Command("helm", "template", entry.Name()).Output(); err == nil {
+			helmout, err := parser.ListResources(out)
+			if err != nil {
+				panic(err)
+			}
 
-		helmout, err := parser.ListResources(out)
-		if err != nil {
-			panic(err)
-		}
-
-		for _, ri := range helmout {
-			collectImages(ri.Object.UnstructuredContent(), images)
+			for _, ri := range helmout {
+				collectImages(ri.Object.UnstructuredContent(), images)
+			}
+		} else {
+			klog.Infof("Skipping %s due to error: %v", entry.Name(), err)
 		}
 	}
 
