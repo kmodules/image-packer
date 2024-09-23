@@ -50,7 +50,13 @@ func ListImages(rootDir string) ([]string, error) {
 			panic(err)
 		}
 
-		if out, err := sh.SetDir(rootDir).Command("helm", "template", entry.Name()).Output(); err == nil {
+		args := []any{"template", entry.Name()}
+		if files, err := filepath.Glob(filepath.Join(rootDir, entry.Name(), "*.values.yaml")); err == nil && len(files) > 0 {
+			for _, file := range files {
+				args = append(args, "--values="+entry.Name()+"/"+filepath.Base(file))
+			}
+		}
+		if out, err := sh.SetDir(rootDir).Command("helm", args...).Output(); err == nil {
 			helmout, err := parser.ListResources(out)
 			if err != nil {
 				panic(err)
