@@ -36,6 +36,8 @@ func NewRootCmd() *cobra.Command {
 
 	rootCmd.AddCommand(NewCmdParseImage())
 	rootCmd.AddCommand(NewCmdListImages())
+	rootCmd.AddCommand(NewCmdListEditorCharts())
+	rootCmd.AddCommand(NewCmdListFeatureCharts())
 	rootCmd.AddCommand(NewCmdGenerateScripts())
 	rootCmd.AddCommand(NewCmdCompletion())
 	rootCmd.AddCommand(v.NewCmdVersion())
