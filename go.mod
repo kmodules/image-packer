@@ -17,8 +17,8 @@ require (
 	k8s.io/client-go v0.30.2
 	k8s.io/component-base v0.30.2
 	k8s.io/klog/v2 v2.130.1
-	kmodules.xyz/client-go v0.30.15
-	kmodules.xyz/resource-metadata v0.18.14-0.20240920103441-9faf0d663661
+	kmodules.xyz/client-go v0.30.17
+	kmodules.xyz/resource-metadata v0.18.16-0.20240927095732-01d53a452d6d
 	kubedb.dev/apimachinery v0.47.0
 	kubeops.dev/scanner v0.0.19
 )
@@ -86,8 +86,8 @@ require (
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
-	golang.org/x/net v0.27.0 // indirect
-	golang.org/x/oauth2 v0.21.0 // indirect
+	golang.org/x/net v0.29.0 // indirect
+	golang.org/x/oauth2 v0.22.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/term v0.24.0 // indirect
