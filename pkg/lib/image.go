@@ -45,7 +45,7 @@ func ListImages(rootDir string) ([]string, error) {
 			continue
 		}
 
-		err := sh.SetDir(filepath.Join(rootDir, entry.Name())).Command("helm", "dependency", "build").Run()
+		err := sh.SetDir(filepath.Join(rootDir, entry.Name())).Command("helm", "dependency", "update").Run()
 		if err != nil {
 			panic(err)
 		}
