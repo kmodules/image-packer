@@ -111,10 +111,23 @@ func GenerateScripts(files []string, outdir string, nondistro, insecure bool) er
 
 	var buf bytes.Buffer
 	buf.WriteString(`#!/bin/bash
-
 set -x
 
 mkdir -p images
+
+OS=$(uname -o)
+if [ "${OS}" = "GNU/Linix" ]; then
+  OS=Linux
+fi
+ARCH=$(uname -m)
+if [ "${ARCH}" = "aarch64" ]; then
+  ARCH=arm64
+fi
+curl -sL "https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_${OS}_${ARCH}.tar.gz" > /tmp/go-containerregistry.tar.gz
+tar -zxvf /tmp/go-containerregistry.tar.gz -C /tmp/
+mv /tmp/crane images
+
+CMD="./images/crane"
 
 `)
 	for _, img := range images {
@@ -127,7 +140,7 @@ mkdir -p images
 			return fmt.Errorf("image %s has no tag", img)
 		}
 
-		buf.WriteString("crane pull")
+		buf.WriteString("$CMD pull")
 		if nondistro {
 			buf.WriteString(" --allow-nondistributable-artifacts")
 		}
@@ -154,10 +167,15 @@ mkdir -p images
 
 set -x
 
-TARBALL=${1:-}
-REGISTRY=${2:-}
+if [ -z "${IMAGE_REGISTRY}" ]; then
+	echo "IMAGE_REGISTRY is not set"
+	exit 1
+fi
 
+TARBALL=${1:-}
 tar -zxvf $TARBALL
+
+CMD="./crane"
 
 `)
 	for _, img := range images {
@@ -170,7 +188,7 @@ tar -zxvf $TARBALL
 			return fmt.Errorf("image %s has no tag", img)
 		}
 
-		buf.WriteString("crane push")
+		buf.WriteString("$CMD push")
 		if nondistro {
 			buf.WriteString(" --allow-nondistributable-artifacts")
 		}
@@ -193,10 +211,24 @@ tar -zxvf $TARBALL
 
 set -x
 
-TARBALL=${1:-}
-REGISTRY=${2:-}
+if [ -z "${IMAGE_REGISTRY}" ]; then
+	echo "IMAGE_REGISTRY is not set"
+	exit 1
+fi
 
-tar -zxvf $TARBALL
+OS=$(uname -o)
+if [ "${OS}" = "GNU/Linix" ]; then
+  OS=Linux
+fi
+ARCH=$(uname -m)
+if [ "${ARCH}" = "aarch64" ]; then
+  ARCH=arm64
+fi
+curl -sL "https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_${OS}_${ARCH}.tar.gz" > /tmp/go-containerregistry.tar.gz
+tar -zxvf /tmp/go-containerregistry.tar.gz -C /tmp/
+mv /tmp/crane .
+
+CMD="./crane"
 
 `)
 	for _, img := range images {
@@ -209,7 +241,7 @@ tar -zxvf $TARBALL
 			return fmt.Errorf("image %s has no tag", img)
 		}
 
-		buf.WriteString("crane cp")
+		buf.WriteString("$CMD cp")
 		if nondistro {
 			buf.WriteString(" --allow-nondistributable-artifacts")
 		}
