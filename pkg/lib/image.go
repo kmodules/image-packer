@@ -25,11 +25,19 @@ import (
 	"kmodules.xyz/client-go/tools/parser"
 
 	shell "gomodules.xyz/go-sh"
-	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/klog/v2"
 )
 
-func ListImages(rootDir string) ([]string, error) {
+func ListDockerImages(rootDir string) ([]string, error) {
+	images, err := MapImages(rootDir)
+	if err != nil {
+		return nil, err
+	}
+	return ListImages(images), nil
+}
+
+func MapImages(rootDir string) (map[string]string, error) {
 	entries, err := os.ReadDir(rootDir)
 	if err != nil {
 		return nil, err
@@ -39,7 +47,7 @@ func ListImages(rootDir string) ([]string, error) {
 	sh.SetDir(rootDir)
 	sh.ShowCMD = true
 
-	images := sets.New[string]()
+	images := map[string]string{}
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			continue
@@ -67,15 +75,47 @@ func ListImages(rootDir string) ([]string, error) {
 			}
 
 			for _, ri := range helmout {
-				collectImages(ri.Object.UnstructuredContent(), images)
+				collectImages(ri.Object.UnstructuredContent(), images, ri.Object.GetObjectKind().GroupVersionKind().GroupKind().String())
 			}
 		} else {
 			klog.Infof("Skipping %s due to error: %v", entry.Name(), err)
 		}
 	}
+	return images, nil
+}
 
-	result := make([]string, 0, images.Len())
-	for _, img := range images.UnsortedList() {
+func collectImages(obj map[string]any, images map[string]string, srcGK string) {
+	for k, v := range obj {
+		if k == "image" {
+			if s, ok := v.(string); ok {
+				images[s] = srcGK
+			}
+		} else if m, ok := v.(map[string]any); ok {
+			collectImages(m, images, srcGK)
+		} else if items, ok := v.([]any); ok {
+			for _, item := range items {
+				if m, ok := item.(map[string]any); ok {
+					collectImages(m, images, srcGK)
+				}
+			}
+		}
+	}
+}
+
+func GroupImages(images map[string]string) map[string][]string {
+	result := map[string][]string{}
+	for img, srcGK := range images {
+		if strings.Contains(img, "${") {
+			continue
+		}
+		result[srcGK] = append(result[srcGK], img)
+	}
+	return result
+}
+
+func ListImages(images map[string]string) []string {
+	result := make([]string, 0, len(images))
+	for img := range images {
 		if strings.Contains(img, "${") {
 			continue
 		}
@@ -83,23 +123,15 @@ func ListImages(rootDir string) ([]string, error) {
 	}
 	sort.Strings(result)
 
-	return result, nil
+	return result
 }
 
-func collectImages(obj map[string]any, images sets.Set[string]) {
-	for k, v := range obj {
-		if k == "image" {
-			if s, ok := v.(string); ok {
-				images.Insert(s)
-			}
-		} else if m, ok := v.(map[string]any); ok {
-			collectImages(m, images)
-		} else if items, ok := v.([]any); ok {
-			for _, item := range items {
-				if m, ok := item.(map[string]any); ok {
-					collectImages(m, images)
-				}
-			}
+func HasGroupKind(images map[string]string, in schema.GroupKind) bool {
+	for _, srcGK := range images {
+		gk := schema.ParseGroupKind(srcGK)
+		if gk.Group == in.Group && (in.Kind == "" || gk.Kind == in.Kind) {
+			return true
 		}
 	}
+	return false
 }
