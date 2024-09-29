@@ -19,11 +19,14 @@ package cmds
 import (
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"kmodules.xyz/image-packer/pkg/lib"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 func NewCmdListImages() *cobra.Command {
@@ -37,19 +40,31 @@ func NewCmdListImages() *cobra.Command {
 		DisableFlagsInUseLine: true,
 		DisableAutoGenTag:     true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			images, err := lib.ListImages(rootDir)
+			imgmap, err := lib.MapImages(rootDir)
 			if err != nil {
 				return err
 			}
 
-			data, err := yaml.Marshal(images)
-			if err != nil {
-				return err
+			if lib.HasGroupKind(imgmap, schema.GroupKind{Group: "catalog.kubedb.com"}) {
+				var rest []string
+				for key, list := range lib.GroupImages(imgmap) {
+					gk := schema.ParseGroupKind(key)
+					if gk.Group == "catalog.kubedb.com" {
+						sort.Strings(list)
+						err := write(list, filepath.Join(outDir, strings.ToLower(gk.Kind)+"s.yaml"))
+						if err != nil {
+							return err
+						}
+					} else {
+						rest = append(rest, list...)
+					}
+				}
+
+				sort.Strings(rest)
+				return write(rest, filepath.Join(outDir, "imagelist.yaml"))
 			}
 
-			filename := filepath.Join(outDir, "imagelist.yaml")
-			err = os.WriteFile(filename, data, 0o644)
-			return err
+			return write(lib.ListImages(imgmap), filepath.Join(outDir, "imagelist.yaml"))
 		},
 	}
 
@@ -59,4 +74,16 @@ func NewCmdListImages() *cobra.Command {
 	_ = cobra.MarkFlagRequired(cmd.Flags(), "output-dir")
 
 	return cmd
+}
+
+func write(images []string, filename string) error {
+	sort.Strings(images)
+
+	data, err := yaml.Marshal(images)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(filename, data, 0o644)
+	return err
 }
