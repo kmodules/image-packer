@@ -144,7 +144,7 @@ mkdir -p images
 	buf.WriteRune('\n')
 	buf.WriteString(`tar -czvf images.tar.gz images
 `)
-	err = os.WriteFile(filepath.Join(outdir, "export-images.sh"), buf.Bytes(), 0o644)
+	err = os.WriteFile(filepath.Join(outdir, "export-images.sh"), buf.Bytes(), 0o755)
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ tar -zxvf $TARBALL
 
 `)
 	for _, img := range images {
-		// crane push images/cluster-ui.tar $REGISTRY/cluster-ui:0.4.16
+		// crane push images/cluster-ui.tar $IMAGE_REGISTRY/cluster-ui:0.4.16
 		ref, err := name.ParseReference(img)
 		if err != nil {
 			return err
@@ -180,10 +180,49 @@ tar -zxvf $TARBALL
 		buf.WriteString(" ")
 		buf.WriteString("images/" + strings.ReplaceAll(ref.Repository, "/", "-") + "-" + ref.Tag + ".tar")
 		buf.WriteString(" ")
-		buf.WriteString("$REGISTRY/" + ref.Repository + ":" + ref.Tag)
+		buf.WriteString("$IMAGE_REGISTRY/" + ref.Repository + ":" + ref.Tag)
 		buf.WriteRune('\n')
 	}
-	err = os.WriteFile(filepath.Join(outdir, "import-images.sh"), buf.Bytes(), 0o644)
+	err = os.WriteFile(filepath.Join(outdir, "import-images.sh"), buf.Bytes(), 0o755)
+	if err != nil {
+		return err
+	}
+
+	buf.Reset()
+	buf.WriteString(`#!/bin/bash
+
+set -x
+
+TARBALL=${1:-}
+REGISTRY=${2:-}
+
+tar -zxvf $TARBALL
+
+`)
+	for _, img := range images {
+		// crane push images/cluster-ui.tar $IMAGE_REGISTRY/cluster-ui:0.4.16
+		ref, err := name.ParseReference(img)
+		if err != nil {
+			return err
+		}
+		if ref.Tag == "" {
+			return fmt.Errorf("image %s has no tag", img)
+		}
+
+		buf.WriteString("crane cp")
+		if nondistro {
+			buf.WriteString(" --allow-nondistributable-artifacts")
+		}
+		if insecure {
+			buf.WriteString(" --insecure")
+		}
+		buf.WriteString(" ")
+		buf.WriteString(img)
+		buf.WriteString(" ")
+		buf.WriteString("$IMAGE_REGISTRY/" + ref.Repository + ":" + ref.Tag)
+		buf.WriteRune('\n')
+	}
+	err = os.WriteFile(filepath.Join(outdir, "copy-images.sh"), buf.Bytes(), 0o755)
 	if err != nil {
 		return err
 	}
