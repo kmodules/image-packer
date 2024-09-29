@@ -46,12 +46,16 @@ func NewCmdListImages() *cobra.Command {
 			}
 
 			if lib.HasGroupKind(imgmap, schema.GroupKind{Group: "catalog.kubedb.com"}) {
+				if err = os.MkdirAll(filepath.Join(outDir, "images"), 0o755); err != nil {
+					return err
+				}
+
 				var rest []string
 				for key, list := range lib.GroupImages(imgmap) {
 					gk := schema.ParseGroupKind(key)
 					if gk.Group == "catalog.kubedb.com" {
 						sort.Strings(list)
-						err := write(list, filepath.Join(outDir, strings.ToLower(gk.Kind)+"s.yaml"))
+						err := write(list, filepath.Join(outDir, "images", strings.ToLower(gk.Kind)+"s.yaml"))
 						if err != nil {
 							return err
 						}
@@ -61,7 +65,10 @@ func NewCmdListImages() *cobra.Command {
 				}
 
 				sort.Strings(rest)
-				return write(rest, filepath.Join(outDir, "imagelist.yaml"))
+				err = write(rest, filepath.Join(outDir, "images", "operator.yaml"))
+				if err != nil {
+					return err
+				}
 			}
 
 			return write(lib.ListImages(imgmap), filepath.Join(outDir, "imagelist.yaml"))
