@@ -39,6 +39,7 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.AddCommand(NewCmdListEditorCharts())
 	rootCmd.AddCommand(NewCmdListFeatureCharts())
 	rootCmd.AddCommand(NewCmdGenerateScripts())
+	rootCmd.AddCommand(NewCmdGenerateGCPScript())
 	rootCmd.AddCommand(NewCmdCompletion())
 	rootCmd.AddCommand(v.NewCmdVersion())
 
