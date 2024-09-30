@@ -116,7 +116,7 @@ set -x
 mkdir -p images
 
 OS=$(uname -o)
-if [ "${OS}" = "GNU/Linix" ]; then
+if [ "${OS}" = "GNU/Linux" ]; then
   OS=Linux
 fi
 ARCH=$(uname -m)
@@ -221,7 +221,7 @@ if [ -z "${IMAGE_REGISTRY}" ]; then
 fi
 
 OS=$(uname -o)
-if [ "${OS}" = "GNU/Linix" ]; then
+if [ "${OS}" = "GNU/Linux" ]; then
   OS=Linux
 fi
 ARCH=$(uname -m)
