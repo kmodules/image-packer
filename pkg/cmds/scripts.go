@@ -198,7 +198,11 @@ CMD="./crane"
 		buf.WriteString(" ")
 		buf.WriteString("images/" + strings.ReplaceAll(ref.Repository, "/", "-") + "-" + ref.Tag + ".tar")
 		buf.WriteString(" ")
-		buf.WriteString("$IMAGE_REGISTRY/" + ref.Repository + ":" + ref.Tag)
+		if strings.HasPrefix(ref.Repository, "library/") {
+			buf.WriteString("$IMAGE_REGISTRY/" + ref.Repository[len("library/"):] + ":" + ref.Tag)
+		} else {
+			buf.WriteString("$IMAGE_REGISTRY/" + ref.Repository + ":" + ref.Tag)
+		}
 		buf.WriteRune('\n')
 	}
 	err = os.WriteFile(filepath.Join(outdir, "import-images.sh"), buf.Bytes(), 0o755)
@@ -251,7 +255,11 @@ CMD="./crane"
 		buf.WriteString(" ")
 		buf.WriteString(img)
 		buf.WriteString(" ")
-		buf.WriteString("$IMAGE_REGISTRY/" + ref.Repository + ":" + ref.Tag)
+		if strings.HasPrefix(ref.Repository, "library/") {
+			buf.WriteString("$IMAGE_REGISTRY/" + ref.Repository[len("library/"):] + ":" + ref.Tag)
+		} else {
+			buf.WriteString("$IMAGE_REGISTRY/" + ref.Repository + ":" + ref.Tag)
+		}
 		buf.WriteRune('\n')
 	}
 	err = os.WriteFile(filepath.Join(outdir, "copy-images.sh"), buf.Bytes(), 0o755)
