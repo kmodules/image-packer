@@ -24,12 +24,12 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 
 	"kmodules.xyz/go-containerregistry/name"
 
 	"github.com/spf13/cobra"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"sigs.k8s.io/yaml"
 )
 
@@ -58,17 +58,16 @@ func NewCmdGenerateScripts() *cobra.Command {
 }
 
 func generateImageList(files []string) ([]string, error) {
-	var images []string
+	images := sets.Set[string]{}
 
 	for _, file := range files {
 		list, err := readImageList(file)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read image list from %s: %w", file, err)
 		}
-		images = append(images, list...)
+		images.Insert(list...)
 	}
-	sort.Strings(images)
-	return images, nil
+	return sets.List(images), nil
 }
 
 func readImageList(file string) ([]string, error) {
@@ -138,6 +137,8 @@ CMD="./images/crane"
 		}
 		if ref.Tag == "" {
 			return fmt.Errorf("image %s has no tag", img)
+		} else if ref.Tag == "latest" {
+			continue
 		}
 
 		buf.WriteString("$CMD pull")
@@ -186,6 +187,8 @@ CMD="./crane"
 		}
 		if ref.Tag == "" {
 			return fmt.Errorf("image %s has no tag", img)
+		} else if ref.Tag == "latest" {
+			continue
 		}
 
 		buf.WriteString("$CMD push")
@@ -243,6 +246,8 @@ CMD="./crane"
 		}
 		if ref.Tag == "" {
 			return fmt.Errorf("image %s has no tag", img)
+		} else if ref.Tag == "latest" {
+			continue
 		}
 
 		buf.WriteString("$CMD cp")
