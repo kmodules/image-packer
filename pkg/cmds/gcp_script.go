@@ -94,8 +94,6 @@ fi
 		}
 		if ref.Tag == "" {
 			return fmt.Errorf("image %s has no tag", img)
-		} else if ref.Tag == "latest" {
-			continue
 		}
 
 		buf.WriteString("crane cp")
