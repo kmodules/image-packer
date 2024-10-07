@@ -219,6 +219,40 @@ if [ -z "${IMAGE_REGISTRY}" ]; then
 	exit 1
 fi
 
+TARBALL=${1:-}
+tar -zxvf $TARBALL
+
+`)
+	for _, img := range images {
+		// crane push images/cluster-ui.tar $IMAGE_REGISTRY/cluster-ui:0.4.16
+		ref, err := name.ParseReference(img)
+		if err != nil {
+			return err
+		}
+		if ref.Tag == "" {
+			return fmt.Errorf("image %s has no tag", img)
+		}
+
+		buf.WriteString("k3s ctr images import")
+		buf.WriteString(" ")
+		buf.WriteString("images/" + strings.ReplaceAll(ref.Repository, "/", "-") + "-" + ref.Tag + ".tar")
+		buf.WriteRune('\n')
+	}
+	err = os.WriteFile(filepath.Join(outdir, "import-into-k3s.sh"), buf.Bytes(), 0o755)
+	if err != nil {
+		return err
+	}
+
+	buf.Reset()
+	buf.WriteString(`#!/bin/bash
+
+set -x
+
+if [ -z "${IMAGE_REGISTRY}" ]; then
+	echo "IMAGE_REGISTRY is not set"
+	exit 1
+fi
+
 OS=$(uname -o)
 if [ "${OS}" = "GNU/Linux" ]; then
   OS=Linux
