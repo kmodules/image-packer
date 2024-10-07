@@ -584,12 +584,12 @@ k8s.io/kube-openapi v0.0.0-20240703190633-0aa61b46e8c2 h1:T5TEV4a+pEjc+j9Xui3MGG
 k8s.io/kube-openapi v0.0.0-20240703190633-0aa61b46e8c2/go.mod h1:UxDHUPsUwTOOxSU+oXURfFBcAS6JwiRXTYqYwfuGowc=
 k8s.io/utils v0.0.0-20240711033017-18e509b52bc8 h1:pUdcCO1Lk/tbT5ztQWOBi5HBgbBP1J8+AsQnQCKsi8A=
 k8s.io/utils v0.0.0-20240711033017-18e509b52bc8/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
-kmodules.xyz/client-go v0.30.17 h1:Ec22XIkAsN8Fwd001P0EzRTsfeibIFkzkZ6oYjLe5LQ=
-kmodules.xyz/client-go v0.30.17/go.mod h1:CAu+JlA8RVGtj6LQHu0Q1w2mnFUajuti49c7T1AvGdM=
+kmodules.xyz/client-go v0.30.19 h1:OStrnata4fT+itjPVQLf1SJ+VW5eBi7Mxvo+AXr6vNM=
+kmodules.xyz/client-go v0.30.19/go.mod h1:CAu+JlA8RVGtj6LQHu0Q1w2mnFUajuti49c7T1AvGdM=
 kmodules.xyz/go-containerregistry v0.0.12 h1:Tl32QGmSqRVm9PUEb/f3dgDeu9zW5fVzt3qmAFIE37I=
 kmodules.xyz/go-containerregistry v0.0.12/go.mod h1:KgeNg0hDsgeda+qc0NzWk0iVRdF0+ZIg/oRzGoYh78I=
-kmodules.xyz/resource-metadata v0.18.16-0.20240929130110-f5f4e27aae5b h1:lnjpyQOfirCPMq5lgLJMUPnPqMRgHQLqHaZCkBk+dm8=
-kmodules.xyz/resource-metadata v0.18.16-0.20240929130110-f5f4e27aae5b/go.mod h1:Q02Xh75qc9MB2rdeo1wbpBn4WCXwoDBxLtonxz57Dng=
+kmodules.xyz/resource-metadata v0.19.0 h1:fr4GzHmeUj/25awK4TnNLWHwjfTIsTMdm4yUP22ACkU=
+kmodules.xyz/resource-metadata v0.19.0/go.mod h1:+oaGJj871hYXqUWDFgqf4Tc8Lz5F8rBco+Bq34DqLus=
 kubeops.dev/scanner v0.0.19 h1:J8C94k4j3NY3Y8UGHcG4nCZtmpSqPneCmkuvGNUOv4s=
 kubeops.dev/scanner v0.0.19/go.mod h1:FAKPsS+FhrOPwsbwXJOE1vLvIFWBcBcSXpaAztezvu4=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=

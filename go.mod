@@ -15,9 +15,9 @@ require (
 	k8s.io/client-go v0.30.2
 	k8s.io/component-base v0.30.2
 	k8s.io/klog/v2 v2.130.1
-	kmodules.xyz/client-go v0.30.17
+	kmodules.xyz/client-go v0.30.19
 	kmodules.xyz/go-containerregistry v0.0.12
-	kmodules.xyz/resource-metadata v0.18.16-0.20240929130110-f5f4e27aae5b
+	kmodules.xyz/resource-metadata v0.19.0
 	kubeops.dev/scanner v0.0.19
 	sigs.k8s.io/yaml v1.4.0
 )
