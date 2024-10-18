@@ -54,6 +54,7 @@ func NewCmdGenerateGCPScript() *cobra.Command {
 }
 
 var gcpImageMap = map[string]string{
+	"defaultbackend-amd64":               "ingress-nginx-defaultbackend",
 	"fluxcd/helm-controller":             "flux-helm-controller",
 	"fluxcd/source-controller":           "flux-source-controller",
 	"ingress-nginx/controller":           "ingress-nginx-controller",

@@ -24,12 +24,13 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"kmodules.xyz/go-containerregistry/name"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/spf13/cobra"
-	"k8s.io/apimachinery/pkg/util/sets"
 	"sigs.k8s.io/yaml"
 )
 
@@ -58,16 +59,35 @@ func NewCmdGenerateScripts() *cobra.Command {
 }
 
 func generateImageList(files []string) ([]string, error) {
-	images := sets.Set[string]{}
+	images := map[string]string{}
 
 	for _, file := range files {
 		list, err := readImageList(file)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read image list from %s: %w", file, err)
 		}
-		images.Insert(list...)
+
+		for _, entry := range list {
+			img, tag, ok := strings.Cut(entry, ":")
+			if !ok {
+				images[entry] = ""
+			}
+			if existing, ok := images[img]; !ok || semver.MustParse(tag).GreaterThan(semver.MustParse(existing)) {
+				images[img] = tag
+			}
+		}
 	}
-	return sets.List(images), nil
+
+	result := make([]string, 0, len(images))
+	for image, tag := range images {
+		if tag == "" {
+			result = append(result, image)
+		} else {
+			result = append(result, image+":"+tag)
+		}
+	}
+	sort.Strings(result)
+	return result, nil
 }
 
 func readImageList(file string) ([]string, error) {
