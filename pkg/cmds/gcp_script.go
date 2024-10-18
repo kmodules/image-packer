@@ -57,6 +57,8 @@ var gcpImageMap = map[string]string{
 	"defaultbackend-amd64":               "ingress-nginx-defaultbackend",
 	"fluxcd/helm-controller":             "flux-helm-controller",
 	"fluxcd/source-controller":           "flux-source-controller",
+	"fluxcd/kustomize-controller":        "flux-kustomize-controller",
+	"fluxcd/notification-controller":     "flux-notification-controller",
 	"ingress-nginx/controller":           "ingress-nginx-controller",
 	"ingress-nginx/kube-webhook-certgen": "ingress-nginx-kube-webhook-certgen",
 	"kedacore/http-add-on-interceptor":   "keda-http-add-on-interceptor",
@@ -97,6 +99,11 @@ fi
 			return fmt.Errorf("image %s has no tag", img)
 		}
 
+		repo := ref.Repository
+		if repo == "prometheus-operator/prometheus-operator" {
+			continue
+		}
+
 		buf.WriteString("crane cp")
 		if nondistro {
 			buf.WriteString(" --allow-nondistributable-artifacts")
@@ -107,10 +114,7 @@ fi
 		buf.WriteString(" ")
 		buf.WriteString(img)
 		buf.WriteString(" ")
-		repo := ref.Repository
-		if repo == "prometheus-operator/prometheus-operator" {
-			continue
-		}
+
 		if strings.HasPrefix(ref.Repository, "library/") {
 			repo = ref.Repository[len("library/"):]
 		}
