@@ -51,7 +51,7 @@ func NewCmdGenerateCVEReport() *cobra.Command {
 			}
 			data := GenerateMarkdownReport(reports)
 
-			readmeFile := filepath.Join(outDir, "catalog", "README.md")
+			readmeFile := filepath.Join(outDir, "README.md")
 			return os.WriteFile(readmeFile, data, 0o644)
 		},
 	}
