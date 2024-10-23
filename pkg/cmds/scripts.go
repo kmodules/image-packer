@@ -72,7 +72,7 @@ func generateImageList(files []string) ([]string, error) {
 			if !ok {
 				images[entry] = ""
 			}
-			if existing, ok := images[img]; !ok || semver.MustParse(tag).GreaterThan(semver.MustParse(existing)) {
+			if existing, ok := images[img]; !ok || GreaterThan(tag, existing) {
 				images[img] = tag
 			}
 		}
@@ -321,4 +321,22 @@ CMD="./crane"
 	}
 
 	return nil
+}
+
+func parseVersion(v string) (*semver.Version, error) {
+	if strings.HasPrefix(v, "alma-") {
+		v = strings.TrimPrefix(v, "alma-")
+	} else if pre, _, ok := strings.Cut(v, "_"); ok {
+		v = pre
+	}
+	return semver.NewVersion(v)
+}
+
+func GreaterThan(x, y string) bool {
+	xv, xe := parseVersion(x)
+	yv, ye := parseVersion(y)
+	if xe == nil && ye == nil {
+		return xv.GreaterThan(yv)
+	}
+	return strings.Compare(x, y) > 0
 }
