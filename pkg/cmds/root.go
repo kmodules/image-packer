@@ -40,6 +40,7 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.AddCommand(NewCmdListFeatureCharts())
 	rootCmd.AddCommand(NewCmdGenerateScripts())
 	rootCmd.AddCommand(NewCmdGenerateGCPScript())
+	rootCmd.AddCommand(NewCmdGenerateCVEReport())
 	rootCmd.AddCommand(NewCmdCompletion())
 	rootCmd.AddCommand(v.NewCmdVersion())
 

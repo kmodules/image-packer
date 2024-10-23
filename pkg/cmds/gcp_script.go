@@ -56,14 +56,15 @@ func NewCmdGenerateGCPScript() *cobra.Command {
 var gcpImageMap = map[string]string{
 	"defaultbackend-amd64":               "ingress-nginx-defaultbackend",
 	"fluxcd/helm-controller":             "flux-helm-controller",
-	"fluxcd/source-controller":           "flux-source-controller",
 	"fluxcd/kustomize-controller":        "flux-kustomize-controller",
 	"fluxcd/notification-controller":     "flux-notification-controller",
+	"fluxcd/source-controller":           "flux-source-controller",
 	"ingress-nginx/controller":           "ingress-nginx-controller",
 	"ingress-nginx/kube-webhook-certgen": "ingress-nginx-kube-webhook-certgen",
 	"kedacore/http-add-on-interceptor":   "keda-http-add-on-interceptor",
 	"kedacore/http-add-on-operator":      "keda-http-add-on-operator",
 	"kedacore/http-add-on-scaler":        "keda-http-add-on-scaler",
+	"prometheus/node-exporter":           "prometheus-node-exporter",
 	"sig-storage/livenessprobe":          "csi-driver-livenessprobe",
 }
 
