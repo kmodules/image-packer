@@ -31,6 +31,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/spf13/cobra"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"sigs.k8s.io/yaml"
 )
 
@@ -58,7 +59,20 @@ func NewCmdGenerateScripts() *cobra.Command {
 	return cmd
 }
 
-func generateImageList(files []string) ([]string, error) {
+func generateImageList(files []string, uniqueTag bool) ([]string, error) {
+	if !uniqueTag {
+		images := sets.Set[string]{}
+
+		for _, file := range files {
+			list, err := readImageList(file)
+			if err != nil {
+				return nil, fmt.Errorf("failed to read image list from %s: %w", file, err)
+			}
+			images.Insert(list...)
+		}
+		return sets.List(images), nil
+	}
+
 	images := map[string]string{}
 
 	for _, file := range files {
@@ -123,7 +137,7 @@ func readImageList(file string) ([]string, error) {
 }
 
 func GenerateScripts(files []string, outdir string, nondistro, insecure bool) error {
-	images, err := generateImageList(files)
+	images, err := generateImageList(files, false)
 	if err != nil {
 		return err
 	}
