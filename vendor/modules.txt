@@ -672,7 +672,7 @@ kmodules.xyz/client-go/tools/parser
 # kmodules.xyz/go-containerregistry v0.0.12
 ## explicit; go 1.21.5
 kmodules.xyz/go-containerregistry/name
-# kmodules.xyz/resource-metadata v0.20.1-0.20241023065426-3eebc133ebfb
+# kmodules.xyz/resource-metadata v0.21.0
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metadata/apis/shared
 kmodules.xyz/resource-metadata/apis/ui

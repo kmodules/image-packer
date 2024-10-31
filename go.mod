@@ -19,7 +19,7 @@ require (
 	k8s.io/klog/v2 v2.130.1
 	kmodules.xyz/client-go v0.30.31
 	kmodules.xyz/go-containerregistry v0.0.12
-	kmodules.xyz/resource-metadata v0.20.1-0.20241023065426-3eebc133ebfb
+	kmodules.xyz/resource-metadata v0.21.0
 	kubeops.dev/scanner v0.0.19
 	sigs.k8s.io/yaml v1.4.0
 )
