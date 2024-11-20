@@ -83,7 +83,9 @@ func NewCmdAceUp() *cobra.Command {
 			for img, tag := range images {
 				tags := aceMap[img]
 				switch len(tags) {
-				case 0, 1:
+				case 0:
+					// skip
+				case 1:
 					aceMap[img] = []string{tag}
 				default:
 					aceMap[img] = sets.List(sets.New[string](aceMap[img]...).Insert(tag))
