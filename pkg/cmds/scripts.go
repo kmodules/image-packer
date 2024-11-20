@@ -32,6 +32,7 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/yaml"
 )
 
@@ -59,14 +60,15 @@ func NewCmdGenerateScripts() *cobra.Command {
 	return cmd
 }
 
-func generateImageList(files []string, uniqueTag bool) ([]string, error) {
+func GenerateImageList(files []string, uniqueTag bool) ([]string, error) {
 	if !uniqueTag {
 		images := sets.Set[string]{}
 
 		for _, file := range files {
-			list, err := readImageList(file)
+			list, err := LoadImageList(file)
 			if err != nil {
-				return nil, fmt.Errorf("failed to read image list from %s: %w", file, err)
+				klog.ErrorS(err, fmt.Sprintf("failed to read image list from %s", file))
+				continue
 			}
 			images.Insert(list...)
 		}
@@ -76,19 +78,8 @@ func generateImageList(files []string, uniqueTag bool) ([]string, error) {
 	images := map[string]string{}
 
 	for _, file := range files {
-		list, err := readImageList(file)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read image list from %s: %w", file, err)
-		}
-
-		for _, entry := range list {
-			img, tag, ok := strings.Cut(entry, ":")
-			if !ok {
-				images[entry] = ""
-			}
-			if existing, ok := images[img]; !ok || GreaterThan(tag, existing) {
-				images[img] = tag
-			}
+		if err := LoadLatestImageMap(file, images); err != nil {
+			return nil, err
 		}
 	}
 
@@ -104,7 +95,45 @@ func generateImageList(files []string, uniqueTag bool) ([]string, error) {
 	return result, nil
 }
 
-func readImageList(file string) ([]string, error) {
+func LoadLatestImageMap(file string, images map[string]string) error {
+	list, err := LoadImageList(file)
+	if err != nil {
+		klog.ErrorS(err, fmt.Sprintf("failed to read image list from %s", file))
+		return nil
+	}
+
+	for _, entry := range list {
+		img, tag, ok := strings.Cut(entry, ":")
+		if !ok {
+			images[entry] = ""
+		}
+		if existing, ok := images[img]; !ok || GreaterThan(tag, existing) {
+			images[img] = tag
+		}
+	}
+	return nil
+}
+
+func LoadImageMap(file string) (map[string][]string, error) {
+	images := map[string][]string{}
+
+	list, err := LoadImageList(file)
+	if err != nil {
+		klog.ErrorS(err, fmt.Sprintf("failed to read image list from %s", file))
+		return images, nil
+	}
+
+	for _, entry := range list {
+		img, tag, ok := strings.Cut(entry, ":")
+		if !ok {
+			continue
+		}
+		images[img] = append(images[img], tag)
+	}
+	return images, nil
+}
+
+func LoadImageList(file string) ([]string, error) {
 	if u, err := url.Parse(file); err == nil && (u.Scheme == "http" || u.Scheme == "https") {
 		resp, err := http.Get(file)
 		if err != nil || resp.StatusCode != http.StatusOK {
@@ -137,7 +166,7 @@ func readImageList(file string) ([]string, error) {
 }
 
 func GenerateScripts(files []string, outdir string, nondistro, insecure bool) error {
-	images, err := generateImageList(files, false)
+	images, err := GenerateImageList(files, false)
 	if err != nil {
 		return err
 	}
