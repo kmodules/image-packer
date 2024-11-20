@@ -161,7 +161,7 @@ func (r CVEReport) Strings() []string {
 
 // "Class": "os-pkgs",
 func GatherReports(files []string) ([]CVEReport, error) {
-	images, err := generateImageList(files, false)
+	images, err := GenerateImageList(files, false)
 	if err != nil {
 		return nil, err
 	}

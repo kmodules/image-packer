@@ -69,7 +69,7 @@ var gcpImageMap = map[string]string{
 }
 
 func GenerateGCPScript(files []string, outdir string, nondistro, insecure bool) error {
-	images, err := generateImageList(files, true)
+	images, err := GenerateImageList(files, true)
 	if err != nil {
 		return err
 	}
