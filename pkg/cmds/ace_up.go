@@ -18,22 +18,18 @@ package cmds
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
-	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/client-go/tools/parser"
 
 	"github.com/spf13/cobra"
 	shell "gomodules.xyz/go-sh"
-	"helm.sh/helm/v3/pkg/chartutil"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/sets"
-	libchart "kubepack.dev/lib-helm/pkg/chart"
-	"kubepack.dev/lib-helm/pkg/repo"
 	"sigs.k8s.io/yaml"
-	releasesapi "x-helm.dev/apimachinery/apis/releases/v1alpha1"
 )
 
 func NewCmdAceUp() *cobra.Command {
@@ -92,6 +88,30 @@ func NewCmdAceUp() *cobra.Command {
 			err = setDBImages(tagKubeDB, dbv, images)
 			if err != nil {
 				return err
+			}
+
+			// vcluster
+			if data, err := os.ReadFile(filepath.Join(dir, "charts", "ace-installer", "values.yaml")); err == nil {
+				var vals map[string]any
+				err = yaml.Unmarshal(data, &vals)
+				if err != nil {
+					return err
+				}
+				tagVCluster, ok, err := unstructured.NestedString(vals, "helm", "releases", "vcluster", "version")
+				if err != nil || !ok {
+					return fmt.Errorf("no vcluster tag found in charts/ace-installer/values.yaml")
+				}
+				err = setVClusterImages(tagVCluster, images)
+				if err != nil {
+					return err
+				}
+				images["ghcr.io/loft-sh/vcluster-oss"] = images["ghcr.io/loft-sh/vcluster-pro"]
+
+				tagvcp, ok, err := unstructured.NestedString(vals, "helm", "releases", "vcluster-plugin", "version")
+				if err != nil || !ok {
+					return fmt.Errorf("no vcluster-plugin tag found in charts/ace-installer/values.yaml")
+				}
+				images["ghcr.io/appscode/vcluster-plugin"] = tagvcp
 			}
 
 			aceMap, err := LoadImageMap(filepath.Join(dir, "catalog", "ace.yaml"))
@@ -198,55 +218,39 @@ func detectDBVersions(dir string) (*DBVersions, error) {
 }
 
 func setDBImages(tag string, dbv *DBVersions, images map[string]string) error {
-	reg := repo.NewMemoryCacheRegistry()
-	chrt, err := reg.GetChart(releasesapi.ChartSourceRef{
-		Name:    "kubedb-catalog",
-		Version: tag,
-		SourceRef: kmapi.TypedObjectReference{
-			APIGroup:  releasesapi.SourceGroupLegacy,
-			Kind:      releasesapi.SourceKindLegacy,
-			Namespace: "",
-			Name:      "https://charts.appscode.com/stable/",
-		},
-	})
+	sh := shell.NewSession()
+	sh.ShowCMD = true
+
+	out, err := sh.Command("helm", "template", "oci://ghcr.io/appscode-charts/kubedb-catalog", fmt.Sprintf("--version=%s", tag)).Output()
 	if err != nil {
 		return err
 	}
 
-	caps := chartutil.DefaultCapabilities
-	options := chartutil.ReleaseOptions{
-		Name:      "kubedb-catalog",
-		Namespace: "kubedb",
-		Revision:  1,
-		IsInstall: true,
-	}
-	valuesToRender, err := chartutil.ToRenderValues(chrt.Chart, map[string]any{}, options, caps)
-	if err != nil {
-		return err
-	}
-	_, manifests, err := libchart.RenderResources(chrt.Chart, caps, valuesToRender)
-	if err != nil {
-		return err
-	}
-	for _, manifest := range manifests {
-		content := strings.TrimSpace(manifest.Content)
-		if content == "" {
-			continue
-		}
-
-		var obj unstructured.Unstructured
-		err = yaml.Unmarshal([]byte(content), &obj)
-		if err != nil {
-			return err
-		}
-
+	return parser.ProcessResources(out, func(ri parser.ResourceInfo) error {
+		obj := ri.Object
 		if obj.GetKind() == "PostgresVersion" && obj.GetName() == dbv.Postgres {
 			collectImages(obj.UnstructuredContent(), images)
 		} else if obj.GetKind() == "RedisVersion" && obj.GetName() == dbv.Redis {
 			collectImages(obj.UnstructuredContent(), images)
 		}
+		return nil
+	})
+}
+
+func setVClusterImages(tag string, images map[string]string) error {
+	sh := shell.NewSession()
+	sh.ShowCMD = true
+
+	out, err := sh.Command("helm", "template", "oci://ghcr.io/appscode-charts/vcluster", fmt.Sprintf("--version=%s", tag)).Output()
+	if err != nil {
+		return err
 	}
-	return nil
+
+	return parser.ProcessResources(out, func(ri parser.ResourceInfo) error {
+		obj := ri.Object
+		collectImages(obj.UnstructuredContent(), images)
+		return nil
+	})
 }
 
 func collectImages(obj map[string]any, images map[string]string) {
