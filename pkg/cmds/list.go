@@ -54,8 +54,13 @@ func NewCmdListImages() *cobra.Command {
 				for key, list := range lib.GroupImages(imgmap) {
 					gk := schema.ParseGroupKind(key)
 					if gk.Group == "catalog.kubedb.com" {
+						dirScript := filepath.Join(outDir, "scripts", strings.ToLower(strings.TrimSuffix(gk.Kind, "Version")))
+						err = os.MkdirAll(dirScript, 0o755)
+						if err != nil {
+							return err
+						}
 						sort.Strings(list)
-						err := write(list, filepath.Join(outDir, "scripts", strings.ToLower(gk.Kind)+"s.yaml"))
+						err = write(list, filepath.Join(dirScript, "imagelist.yaml"))
 						if err != nil {
 							return err
 						}
@@ -64,8 +69,13 @@ func NewCmdListImages() *cobra.Command {
 					}
 				}
 
+				dirScript := filepath.Join(outDir, "scripts", "operator")
+				err = os.MkdirAll(dirScript, 0o755)
+				if err != nil {
+					return err
+				}
 				sort.Strings(rest)
-				err = write(rest, filepath.Join(outDir, "scripts", "operator.yaml"))
+				err = write(rest, filepath.Join(dirScript, "imagelist.yaml"))
 				if err != nil {
 					return err
 				}

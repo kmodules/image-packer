@@ -272,16 +272,3 @@ func collectImages(obj map[string]any, images map[string]string) {
 		}
 	}
 }
-
-func copyValues(in map[string]interface{}) (map[string]interface{}, error) {
-	data, err := yaml.Marshal(in)
-	if err != nil {
-		return nil, err
-	}
-	var out map[string]interface{}
-	err = yaml.Unmarshal(data, &out)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
