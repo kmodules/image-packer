@@ -17,10 +17,12 @@ limitations under the License.
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
 
+	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"sigs.k8s.io/yaml"
 )
@@ -48,6 +50,73 @@ func CheckImageExists(files []string) error {
 		return fmt.Errorf("missing %d images", len(missing))
 	}
 
+	return nil
+}
+
+var desiredArchs = sets.New("amd64", "arm64")
+
+func CheckImageArchitectures(files []string, archSkipList []string) error {
+	archSkipSet := sets.NewString(archSkipList...)
+
+	images, err := LoadImageList(files)
+	if err != nil {
+		return err
+	}
+
+	var missing []string
+	missingArchs := map[string][]string{}
+	for _, img := range images {
+		obj, found, err := ImageManifest(img)
+		if err != nil || !found {
+			missing = append(missing, img)
+			continue
+		}
+		switch mf := obj.(type) {
+		case *v1.IndexManifest:
+			var archs []string
+			for _, d := range mf.Manifests {
+				if d.Platform != nil && d.Platform.Architecture != "" {
+					archs = append(archs, d.Platform.Architecture)
+				}
+			}
+			if missing := sets.List(desiredArchs.Difference(sets.New[string](archs...))); len(missing) > 0 {
+				missingArchs[img] = missing
+			} else {
+				fmt.Println("✔ " + img)
+			}
+		case *v1.Manifest:
+			if mf.Config.MediaType != "application/vnd.cncf.helm.config.v1+json" {
+				missingArchs[img] = []string{"arm64"}
+			}
+		default:
+			missingArchs[img] = []string{"amd64", "arm64"}
+		}
+	}
+
+	var fail bool
+	if len(missing) > 0 {
+		fmt.Println("----------------------------------------")
+		fmt.Println("Missing Images:")
+		fmt.Println(strings.Join(missing, "\n"))
+		fail = true
+	}
+
+	if len(missingArchs) > 0 {
+		fmt.Println("----------------------------------------")
+		fmt.Println("Missing Architectures:")
+		for img, archs := range missingArchs {
+			if !archSkipSet.Has(img) {
+				fmt.Printf("X %s %v\n", img, archs)
+				fail = true
+			} else {
+				fmt.Printf("[skipped] %s %v\n", img, archs)
+			}
+		}
+	}
+
+	if fail {
+		return errors.New("missing images and/or architectures")
+	}
 	return nil
 }
 
