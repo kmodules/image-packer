@@ -3,24 +3,24 @@ kind: ResourceEditor
 metadata:
   creationTimestamp: null
   labels:
-    k8s.io/group: meta.k8s.appscode.com
-    k8s.io/kind: ClusterStatus
-    k8s.io/resource: clusterstatuses
+    k8s.io/group: gateway.catalog.appscode.com
+    k8s.io/kind: GatewayPreset
+    k8s.io/resource: gatewaypresets
     k8s.io/version: v1alpha1
-  name: meta.k8s.appscode.com-v1alpha1-clusterstatuses
+  name: gateway.catalog.appscode.com-v1alpha1-gatewaypresets
 spec:
   resource:
-    group: meta.k8s.appscode.com
-    kind: ClusterStatus
-    name: clusterstatuses
+    group: gateway.catalog.appscode.com
+    kind: GatewayPreset
+    name: gatewaypresets
     scope: Namespaced
     version: v1alpha1
   ui:
     editor:
-      name: metak8sappscodecom-clusterstatus-editor
+      name: gatewaycatalogappscodecom-gatewaypreset-editor
       sourceRef:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.11.0
+      version: v0.12.0
     enforceQuota: false

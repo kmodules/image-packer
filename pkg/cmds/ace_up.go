@@ -107,11 +107,11 @@ func NewCmdAceUp() *cobra.Command {
 				}
 				images["ghcr.io/loft-sh/vcluster-oss"] = images["ghcr.io/loft-sh/vcluster-pro"]
 
-				tagvcp, ok, err := unstructured.NestedString(vals, "helm", "releases", "vcluster-plugin", "version")
+				tagvcp, ok, err := unstructured.NestedString(vals, "helm", "releases", "vcluster-plugin-ace", "version")
 				if err != nil || !ok {
-					return fmt.Errorf("no vcluster-plugin tag found in charts/ace-installer/values.yaml")
+					return fmt.Errorf("no vcluster-plugin-ace tag found in charts/ace-installer/values.yaml")
 				}
-				images["ghcr.io/appscode/vcluster-plugin"] = tagvcp
+				images["ghcr.io/appscode/vcluster-plugin-ace"] = tagvcp
 			}
 
 			aceMap, err := LoadImageMap(filepath.Join(dir, "catalog", "ace.yaml"))
