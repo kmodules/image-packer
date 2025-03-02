@@ -17,9 +17,9 @@ require (
 	k8s.io/client-go v0.30.2
 	k8s.io/component-base v0.30.2
 	k8s.io/klog/v2 v2.130.1
-	kmodules.xyz/client-go v0.30.45
+	kmodules.xyz/client-go v0.30.46
 	kmodules.xyz/go-containerregistry v0.0.12
-	kmodules.xyz/resource-metadata v0.25.1
+	kmodules.xyz/resource-metadata v0.26.0
 	kubeops.dev/scanner v0.0.19
 	sigs.k8s.io/yaml v1.4.0
 )
@@ -110,7 +110,7 @@ require (
 	sigs.k8s.io/controller-runtime v0.18.4 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
-	x-helm.dev/apimachinery v0.0.16 // indirect
+	x-helm.dev/apimachinery v0.0.17 // indirect
 )
 
 replace (
