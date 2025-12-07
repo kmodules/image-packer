@@ -139,7 +139,7 @@ func LoadImageList(file string) ([]string, error) {
 		if err != nil || resp.StatusCode != http.StatusOK {
 			return nil, err
 		}
-		defer resp.Body.Close()
+		defer resp.Body.Close() // nolint:errcheck
 		var buf bytes.Buffer
 		_, err = io.Copy(&buf, resp.Body)
 		if err != nil {
