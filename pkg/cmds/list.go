@@ -40,7 +40,7 @@ func NewCmdListImages() *cobra.Command {
 		DisableFlagsInUseLine: true,
 		DisableAutoGenTag:     true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			imgmap, err := lib.MapImages(rootDir)
+			imgmap, err := lib.MapImages(rootDir, nil)
 			if err != nil {
 				return err
 			}
