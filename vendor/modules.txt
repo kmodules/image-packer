@@ -844,7 +844,7 @@ kmodules.xyz/client-go/tools/parser
 # kmodules.xyz/go-containerregistry v0.0.15
 ## explicit; go 1.24.0
 kmodules.xyz/go-containerregistry/name
-# kmodules.xyz/resource-metadata v0.41.0
+# kmodules.xyz/resource-metadata v0.42.0
 ## explicit; go 1.25
 kmodules.xyz/resource-metadata/apis/shared
 kmodules.xyz/resource-metadata/apis/ui
