@@ -45,5 +45,8 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.AddCommand(NewCmdCompletion())
 	rootCmd.AddCommand(v.NewCmdVersion())
 
+	// Register the new replace-image-digest command
+	rootCmd.AddCommand(NewCmdReplaceImageDigest())
+
 	return rootCmd
 }
