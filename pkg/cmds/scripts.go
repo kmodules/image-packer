@@ -367,8 +367,8 @@ CMD="./crane"
 }
 
 func parseVersion(v string) (*semver.Version, error) {
-	if strings.HasPrefix(v, "alma-") {
-		v = strings.TrimPrefix(v, "alma-")
+	if after, ok := strings.CutPrefix(v, "alma-"); ok {
+		v = after
 	} else if pre, _, ok := strings.Cut(v, "_"); ok {
 		v = pre
 	}
